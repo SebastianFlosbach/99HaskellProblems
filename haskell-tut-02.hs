@@ -32,11 +32,58 @@ repli :: [a] -> Int -> [a]
 repli [] _ = []
 repli (x:xs) n = replicate n x ++ repli xs n
 
--- Problem 16
+-- Aufgabe 16  
 
-dropEvery :: [a] -> Int -> [a]
+dropEvery :: (Eq a) => [a] -> Int -> [a]
 dropEvery [] _ = []
-dropEvery list 0 = list
-dropEvery (x:xs) n
- | n == 1 = xs
- | otherwise = x : dropEvery xs n
+dropEvery list n = dropEvery' list n 1
+ where 
+  dropEvery' :: (Eq a) => [a] -> Int -> Int -> [a]
+  dropEvery' [] _ _ = []
+  dropEvery' (x:xs) n i
+   | i == n = dropEvery xs n
+   | otherwise = x : dropEvery' xs n (i + 1)
+
+-- Aufgabe 17
+
+split :: [a] -> Int -> ([a],[a])
+split [] _ = ([],[])
+split list 0 = (list,[])
+split list n
+ | n >= length list = ([], list)
+ | otherwise = (split' list 0 n 1, split' list (n + 1) (length list) 1)
+ where
+  split' :: [a] -> Int -> Int -> Int -> [a]
+  split' [] _ _ _ = []
+  split' (x:xs) start end i
+   | i < start = split' xs start end (i + 1)
+   | i >= start && i <= end = x : split' xs start end (i + 1)
+   | otherwise = []
+   
+-- Aufgabe 18
+
+slice :: [a] -> Int -> Int -> [a]
+slice [] _ _ = []
+slice list start end = slice' list start end 1
+ where
+  slice' [] _ _ _ = []
+  slice' (x:xs) start end i
+   | i < start = slice' xs start end (i + 1)
+   | i >= start && i <= end = x : slice' xs start end (i + 1)
+   | otherwise = []
+   
+-- Aufgabe 19
+
+rotateLeft :: [a] -> Int -> [a]
+rotateLeft [] _ = []
+rotateLeft list n = attatch (split list (mod n (length list)))
+ where
+  attatch (first, last) = last ++ first
+
+-- Aufgabe 20
+
+removeAt :: Int -> [a] -> (a, [a])
+removeAt n list
+ | n > (length list) = error "Index out of bounds"
+ |otherwise = (list !! (n - 1), (slice list 1 (n - 1)) ++ (slice list (n + 1) (length list)))
+
